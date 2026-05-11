@@ -1,0 +1,21 @@
+# Sistema operativo
+Thumbs.db
+ehthumbs.db
+desktop.ini
+.DS_Store
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporales
+*.bak
+*.tmp
+*.log
+~$*
+
+# Archivos de sincronización de OneDrive
+*.tmp.driveupload
+*.tmp.drivedownload

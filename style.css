@@ -1,0 +1,664 @@
+/* ================================================================
+   PROGRAMA DE OBRA — Gantt Viewer
+   Tema claro inspirado en MS Project. Paleta neutra con
+   acentos Metta (dorado para detalles del header).
+   ================================================================ */
+
+:root {
+  /* ---- Tema claro ---- */
+  --bg-primary:     #ffffff;   /* lienzo principal */
+  --bg-secondary:   #f7f8fa;   /* paneles, header de columnas */
+  --bg-tertiary:    #eef1f5;   /* alternancia de filas, hover suave */
+  --bg-hover:       #dde6f3;   /* hover de fila */
+  --bg-row-select:  #cfe3d1;   /* fila seleccionada (verde suave MS Project) */
+  --bg-headerbar:   #e7ecf2;   /* barra de encabezado de columnas */
+  --bg-weekend:     #fafbfc;   /* tinte sutil para sábado/domingo */
+
+  --border:         #e2e5ea;   /* líneas suaves (diario) */
+  --border-strong:  #c4cad2;   /* línea semanal, divisores fuertes */
+  --border-darker:  #9aa1ab;
+
+  --text-primary:   #1f2733;   /* texto principal */
+  --text-secondary: #5a6473;   /* texto secundario */
+  --text-muted:     #8a93a0;
+  --text-on-dark:   #ffffff;
+
+  /* ---- Acentos ---- */
+  --accent-gold:    #b8901f;   /* dorado Metta — header */
+  --accent-gold-2:  #d4af37;
+
+  --bar-summary:    #1f3864;   /* azul navy MS Project — tarea maestra */
+  --bar-task:       #8abbed;   /* azul claro — tarea regular */
+  --bar-task-edge:  #4a8dc5;   /* borde de la barra de tarea */
+  --bar-progress:   #1f3864;   /* avance dentro de la barra */
+
+  --accent-blue:    #1f77c4;   /* en progreso */
+  --accent-green:   #6aa84f;   /* completado / línea de corte */
+  --accent-red:     #c0392b;   /* atrasado */
+  --accent-orange:  #e69138;   /* riesgo */
+  --accent-gray:    #b7b7b7;   /* no iniciado */
+
+  /* ---- Tipografía ---- */
+  --font-heading:   'Inter', system-ui, sans-serif;
+  --font-body:      'Inter', system-ui, sans-serif;
+  --font-mono:      'JetBrains Mono', ui-monospace, monospace;
+
+  /* ---- Layout ---- */
+  --header-h:       108px;
+  --left-w:         640px;
+  --row-h:          26px;       /* MS Project usa filas compactas */
+  --timeline-h:     44px;
+  --col-w:          18px;       /* px por día */
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+.mono { font-family: var(--font-mono); }
+
+/* ============================================================
+   HEADER de la aplicación
+   ============================================================ */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  height: var(--header-h);
+  padding: 10px 20px;
+  background: linear-gradient(to bottom, #ffffff, #f1f3f7);
+  border-bottom: 1px solid var(--border-strong);
+  position: relative;
+  z-index: 10;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.logo {
+  height: 78px;
+  width: auto;
+  max-width: 196px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.header-titles { min-width: 0; }
+
+.app-title {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+  color: #1f3864;
+  margin: 0 0 4px 0;
+  text-transform: uppercase;
+}
+
+.project-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.header-meta,
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+}
+
+.meta-item   { display: inline-flex; align-items: center; gap: 6px; }
+.meta-label  { color: var(--text-secondary); font-weight: 500; }
+.meta-value  { color: var(--text-primary); }
+.meta-sep    { color: var(--text-muted); }
+
+input[type="date"] {
+  background: #ffffff;
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  padding: 3px 7px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+input[type="date"]:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 2px rgba(31,119,196,0.15);
+}
+
+.btn {
+  background: #ffffff;
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  padding: 4px 11px;
+  border-radius: 3px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 120ms, border-color 120ms;
+}
+.btn:hover { background: var(--bg-tertiary); border-color: var(--border-darker); }
+.btn-primary {
+  background: var(--bar-summary);
+  color: var(--text-on-dark);
+  border-color: var(--bar-summary);
+  font-weight: 600;
+}
+.btn-primary:hover { background: #2a4a7f; }
+
+/* ============================================================
+   DROPZONE / ERROR / EMPTY
+   ============================================================ */
+.dropzone, .error-panel, .empty-state {
+  margin: 40px auto;
+  max-width: 600px;
+  padding: 40px;
+  background: var(--bg-secondary);
+  border: 2px dashed var(--border-strong);
+  border-radius: 6px;
+  text-align: center;
+}
+.dropzone.dragover {
+  border-color: var(--bar-summary);
+  background: #eaf2ff;
+}
+.dropzone h3, .error-panel h3, .empty-state h3 {
+  margin: 0 0 12px 0;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.dropzone p, .error-panel p, .empty-state p {
+  color: var(--text-secondary);
+  margin: 8px 0;
+}
+.dropzone code, .error-panel code {
+  background: #ffffff;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  border: 1px solid var(--border);
+}
+.dropzone-hint { font-size: 11px; color: var(--text-muted); margin-top: 16px; }
+.error-panel { border-color: var(--accent-red); border-style: solid; background: #fdf3f2; }
+
+/* ============================================================
+   VIEWER (dos paneles)
+   ============================================================ */
+.viewer {
+  display: flex;
+  height: calc(100vh - var(--header-h));
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+/* ---------- Panel izquierdo ---------- */
+.panel-left {
+  width: var(--left-w);
+  flex-shrink: 0;
+  background: var(--bg-primary);
+  border-right: 1px solid var(--border-strong);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* columnas: toggle | nombre | duración | inicio | fin */
+.panel-left-header,
+.task-row {
+  display: grid;
+  grid-template-columns: 24px 1fr 70px 100px 100px;
+  align-items: center;
+}
+
+.panel-left-header {
+  height: var(--timeline-h);
+  padding: 0 6px;
+  background: var(--bg-headerbar);
+  border-bottom: 1px solid var(--border-strong);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+.panel-left-header > div {
+  border-right: 1px solid var(--border);
+  padding: 0 6px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.panel-left-header > div:last-child { border-right: none; }
+.col-toggle { padding: 0 !important; }
+.col-pct, .col-dur, .col-start, .col-finish {
+  justify-content: flex-start;
+}
+
+.panel-left-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg-primary);
+}
+
+/* filas del panel izquierdo */
+.task-row {
+  height: var(--row-h);
+  padding: 0 6px;
+  border-bottom: 1px solid var(--border);
+  cursor: default;
+  transition: background 80ms;
+  color: var(--text-primary);
+}
+.task-row:nth-child(even) { background: var(--bg-secondary); }
+.task-row.hover, .task-row:hover { background: var(--bg-hover); }
+.task-row.summary {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.task-row.level-1 { font-size: 12px; }
+.task-row.level-2 { font-size: 12px; }
+.task-row.level-3 { font-size: 11px; }
+.task-row.level-4,
+.task-row.level-5,
+.task-row.level-6 { font-size: 11px; color: var(--text-secondary); }
+
+.task-row > div {
+  padding: 0 6px;
+  border-right: 1px solid var(--border);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.task-row > div:last-child { border-right: none; }
+
+.task-toggle {
+  width: 24px;
+  padding: 0 !important;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  user-select: none;
+  font-size: 9px;
+}
+.task-toggle.empty { cursor: default; }
+.task-toggle:not(.empty):hover { color: var(--bar-summary); }
+
+.task-name {
+  overflow: hidden;
+}
+.task-name-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  max-width: 100%;
+}
+.task-milestone-icon {
+  display: inline-block;
+  margin-right: 4px;
+  color: var(--bar-summary);
+}
+
+.task-dur, .task-start, .task-finish {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-primary);
+}
+.task-row.summary .task-dur,
+.task-row.summary .task-start,
+.task-row.summary .task-finish { font-weight: 700; }
+
+/* ---------- Panel derecho (Gantt) ---------- */
+.panel-right {
+  flex: 1;
+  overflow: auto;
+  background: var(--bg-primary);
+  position: relative;
+}
+
+.timeline-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  height: var(--timeline-h);
+  background: var(--bg-headerbar);
+  border-bottom: 1px solid var(--border-strong);
+  display: flex;
+  flex-direction: column;
+}
+.timeline-row {
+  display: flex;
+  height: 50%;
+  border-bottom: 1px solid var(--border-strong);
+}
+.timeline-row:last-child { border-bottom: none; }
+
+.timeline-cell {
+  border-right: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  background: var(--bg-headerbar);
+}
+.timeline-cell.major {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 11px;
+  border-right: 1px solid var(--border-strong);
+}
+.timeline-cell.day.weekend {
+  background: #dde2e9;
+  color: var(--text-muted);
+}
+
+/* cuerpo del gantt */
+.gantt-body {
+  position: relative;
+  background: var(--bg-primary);
+}
+
+.gantt-row {
+  position: relative;
+  height: var(--row-h);
+  border-bottom: 1px solid var(--border);
+}
+.gantt-row:nth-child(even) { background: var(--bg-secondary); }
+.gantt-row.hover { background: var(--bg-hover); }
+
+/* líneas verticales guía */
+.gantt-grid-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+  pointer-events: none;
+}
+.gantt-grid-line.week-boundary { background: var(--border-strong); }
+.gantt-weekend-band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(120, 130, 145, 0.06);
+  pointer-events: none;
+}
+
+/* ---------- BARRAS ---------- */
+.bar {
+  position: absolute;
+  top: 5px;
+  height: 14px;
+  border-radius: 1px;
+  background: var(--bar-task);
+  border: 1px solid var(--bar-task-edge);
+  overflow: hidden;
+  min-width: 4px;
+  z-index: 1;
+}
+.bar-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: var(--bar-progress);
+}
+
+/* estados por color */
+.bar.completed   { background: var(--accent-green); border-color: #4f8a3a; }
+.bar.in-progress { background: var(--bar-task);     border-color: var(--bar-task-edge); }
+.bar.delayed     { background: #f5b7b1;             border-color: var(--accent-red); }
+.bar.not-started { background: var(--bar-task);     border-color: var(--bar-task-edge); }
+.bar.overdue     { background: #fdd9a8;             border-color: var(--accent-orange); }
+
+/* Tarea Summary (estilo MS Project: barra navy con triángulos en extremos) */
+.bar.summary {
+  background: var(--bar-summary);
+  border: none;
+  border-radius: 0;
+  height: 9px;
+  top: 7px;
+  overflow: visible;
+}
+.bar.summary::before,
+.bar.summary::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  bottom: -5px;
+  border-top: 5px solid var(--bar-summary);
+}
+.bar.summary::before {
+  left: 0;
+  border-right: 5px solid transparent;
+}
+.bar.summary::after {
+  right: 0;
+  border-left: 5px solid transparent;
+}
+.bar.summary .bar-progress { display: none; }
+
+/* Hito (diamante) */
+.bar.milestone {
+  background: var(--bar-summary);
+  border: none;
+  width: 12px !important;
+  height: 12px;
+  top: 6px;
+  transform: translateX(-6px) rotate(45deg);
+  border-radius: 1px;
+}
+.bar.milestone.completed   { background: var(--accent-green); }
+.bar.milestone.in-progress { background: var(--bar-summary); }
+.bar.milestone.delayed     { background: var(--accent-red); }
+.bar.milestone.not-started { background: var(--accent-gray); }
+.bar.milestone.overdue     { background: var(--accent-orange); }
+.bar.milestone .bar-progress { display: none; }
+
+/* Ruta crítica */
+.bar.critical { box-shadow: 0 0 0 1.5px var(--accent-red); }
+
+/* Línea de fecha de corte */
+.status-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--accent-green);
+  z-index: 4;
+  pointer-events: none;
+}
+.status-line-label {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent-green);
+  color: var(--text-on-dark);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 2px;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+/* fila oculta (cuando un padre está colapsado) */
+.is-hidden { display: none !important; }
+
+/* tooltip de barra */
+.bar[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  transform: translateY(-4px);
+  background: #ffffff;
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: var(--font-body);
+  white-space: pre;
+  pointer-events: none;
+  z-index: 20;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+/* ============================================================
+   SCROLLBARS
+   ============================================================ */
+.panel-left-body::-webkit-scrollbar,
+.panel-right::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+  background: var(--bg-tertiary);
+}
+.panel-left-body::-webkit-scrollbar-thumb,
+.panel-right::-webkit-scrollbar-thumb {
+  background: var(--border-darker);
+  border-radius: 6px;
+  border: 2px solid var(--bg-tertiary);
+}
+.panel-left-body::-webkit-scrollbar-thumb:hover,
+.panel-right::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+/* Botón toggle de detalles — solo visible en móvil/tablet */
+.btn-mobile-toggle {
+  display: none;
+  align-items: center;
+  gap: 6px;
+}
+.btn-mobile-toggle .toggle-arrow {
+  display: inline-block;
+  transition: transform 200ms;
+  font-size: 10px;
+}
+body.details-mode .btn-mobile-toggle .toggle-arrow {
+  transform: rotate(180deg);
+}
+
+/* Laptops compactas */
+@media (max-width: 1366px) {
+  :root { --left-w: 520px; }
+  .header-meta, .header-controls { font-size: 11px; gap: 6px; }
+  .project-name { font-size: 15px; }
+}
+
+/* Tablet / móvil: por defecto solo "Nombre de tarea" + Gantt;
+   con .details-mode el panel izquierdo se ensancha, aparecen
+   las columnas de Duración / Comienzo / Fin, y el Gantt se oculta.
+
+   Los selectores usan parent > child explícito para subir la
+   especificidad (0,2,0) por encima de `.task-row > div` (0,1,1)
+   que define el display:flex base de las celdas. Sin esto los
+   `display:none` no se aplican y las celdas se reflujan a filas
+   extra dentro del grid. */
+@media (max-width: 900px) {
+  :root {
+    --left-w: 230px;
+    --header-h: 96px;
+  }
+
+  /* Mostrar el botón toggle */
+  .btn-mobile-toggle { display: inline-flex; }
+
+  /* Header: ocultar botones globales en móvil para reducir ruido */
+  #btnExpandAll, #btnCollapseAll { display: none; }
+  .header-controls .meta-sep { display: none; }
+
+  /* Modo por defecto: 2 columnas visibles (toggle + nombre) */
+  .panel-left-header,
+  .task-row {
+    grid-template-columns: 24px 1fr;
+  }
+  .panel-left-header > .col-dur,
+  .panel-left-header > .col-start,
+  .panel-left-header > .col-finish,
+  .task-row > .task-dur,
+  .task-row > .task-start,
+  .task-row > .task-finish {
+    display: none;
+  }
+
+  /* Recortar el nombre del proyecto y la metadata para que no
+     desborden en pantallas estrechas. */
+  .project-name {
+    font-size: 13px;
+    max-width: 60vw;
+  }
+  .app-header {
+    padding: 8px 12px;
+    gap: 10px;
+  }
+  .header-meta, .header-controls {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  /* Modo "detalles": ocupa toda la pantalla con las 4 columnas,
+     el Gantt se oculta temporalmente. */
+  body.details-mode {
+    --left-w: 100vw;
+  }
+  body.details-mode .panel-left-header,
+  body.details-mode .task-row {
+    grid-template-columns: 24px 1fr 64px 92px 92px;
+  }
+  body.details-mode .panel-left-header > .col-dur,
+  body.details-mode .panel-left-header > .col-start,
+  body.details-mode .panel-left-header > .col-finish,
+  body.details-mode .task-row > .task-dur,
+  body.details-mode .task-row > .task-start,
+  body.details-mode .task-row > .task-finish {
+    display: flex;
+  }
+  body.details-mode .panel-right {
+    display: none;
+  }
+}

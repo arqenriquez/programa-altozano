@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="56" height="56">
+  <!-- Placeholder logo Metta — círculo dorado con monograma "M" -->
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e6c34a"/>
+      <stop offset="100%" stop-color="#b8901f"/>
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="46" fill="#0a0a0a" stroke="url(#gold)" stroke-width="2"/>
+  <path d="M 28 70 L 28 30 L 42 30 L 50 52 L 58 30 L 72 30 L 72 70 L 64 70 L 64 42 L 54 70 L 46 70 L 36 42 L 36 70 Z"
+        fill="url(#gold)"/>
+  <text x="50" y="86" text-anchor="middle"
+        font-family="Inter, sans-serif" font-size="7" font-weight="600"
+        fill="#d4af37" letter-spacing="1">METTA</text>
+</svg>

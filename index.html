@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Programa de Obra — Metta Arquitectura</title>
+
+  <!-- Tipografías -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ============================================================ -->
+  <!-- HEADER: logo, título, fechas, controles globales              -->
+  <!-- ============================================================ -->
+  <header class="app-header">
+    <div class="header-left">
+      <img src="assets/logo-metta.png" alt="Mettā Arquitectura y Construcción" class="logo" />
+      <div class="header-titles">
+        <h1 class="app-title">PROGRAMA DE OBRA</h1>
+        <h2 class="project-name" id="projectName">ALTOZANO — CASAS ZORRO — 6 CASAS</h2>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="header-meta">
+        <span class="meta-item">
+          <span class="meta-label">Inicio:</span>
+          <span class="meta-value mono" id="projectStart">—</span>
+        </span>
+        <span class="meta-sep">|</span>
+        <span class="meta-item">
+          <span class="meta-label">Fin:</span>
+          <span class="meta-value mono" id="projectFinish">—</span>
+        </span>
+        <span class="meta-sep">|</span>
+        <span class="meta-item">
+          <label class="meta-label" for="statusDate">Fecha de corte:</label>
+          <input type="date" id="statusDate" class="mono" />
+        </span>
+      </div>
+
+      <div class="header-controls">
+        <button class="btn btn-mobile-toggle" id="btnDetailsToggle"
+                aria-label="Mostrar u ocultar columnas de detalle">
+          <span class="toggle-arrow">▶</span>
+          <span class="toggle-label">Detalles</span>
+        </button>
+        <button class="btn" id="btnExpandAll">Expandir todo</button>
+        <button class="btn" id="btnCollapseAll">Colapsar todo</button>
+        <span class="meta-sep">|</span>
+        <span class="meta-item">
+          <span class="meta-label">Última actualización:</span>
+          <span class="meta-value mono" id="lastUpdate">—</span>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- DROPZONE: visible solo si el fetch del XML falla              -->
+  <!-- ============================================================ -->
+  <div class="dropzone" id="dropzone" hidden>
+    <div class="dropzone-inner">
+      <h3>No se pudo cargar <code>data/programa.xml</code></h3>
+      <p>Arrastra aquí el archivo XML exportado desde MS Project, o haz click para seleccionarlo.</p>
+      <input type="file" id="fileInput" accept=".xml" hidden />
+      <button class="btn btn-primary" id="btnFilePicker">Seleccionar archivo XML</button>
+      <p class="dropzone-hint">
+        Esto suele pasar al abrir <code>index.html</code> directamente (file://).
+        Sirve un servidor local con <code>npx serve .</code> o <code>python -m http.server</code>.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ERROR DE PARSING                                              -->
+  <!-- ============================================================ -->
+  <div class="error-panel" id="errorPanel" hidden>
+    <h3>Error al procesar el XML</h3>
+    <p id="errorMessage"></p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- VIEWPORT PRINCIPAL: dos paneles lado a lado                   -->
+  <!-- ============================================================ -->
+  <main class="viewer" id="viewer" hidden>
+
+    <!-- Panel izquierdo: lista de tareas ------------------------ -->
+    <section class="panel-left" id="panelLeft">
+      <div class="panel-left-header">
+        <div class="col-toggle"></div>
+        <div class="col-name">Nombre de tarea</div>
+        <div class="col-dur">Duración</div>
+        <div class="col-start">Comienzo</div>
+        <div class="col-finish">Fin</div>
+      </div>
+      <div class="panel-left-body" id="taskList">
+        <!-- filas inyectadas por JS -->
+      </div>
+    </section>
+
+    <!-- Panel derecho: timeline + barras ------------------------ -->
+    <section class="panel-right" id="panelRight">
+      <div class="timeline-header" id="timelineHeader">
+        <!-- 2 filas (año/mes o mes/semana) inyectadas por JS -->
+      </div>
+      <div class="gantt-body" id="ganttBody">
+        <!-- filas + barras inyectadas por JS -->
+        <div class="status-line" id="statusLine" hidden></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================================ -->
+  <!-- ESTADO VACÍO                                                  -->
+  <!-- ============================================================ -->
+  <div class="empty-state" id="emptyState" hidden>
+    <h3>No hay tareas para mostrar</h3>
+    <p>El archivo XML está vacío o no contiene tareas válidas.</p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
