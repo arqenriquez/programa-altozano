@@ -77,6 +77,11 @@
           <span class="meta-label">Última actualización:</span>
           <span class="meta-value mono" id="lastUpdate">—</span>
         </span>
+        <button class="btn-header-collapse" id="btnHeaderCollapse"
+                aria-label="Contraer o expandir el encabezado"
+                title="Contraer encabezado">
+          <span class="collapse-arrow">▲</span>
+        </button>
       </div>
     </div>
   </header>
@@ -114,7 +119,14 @@
     <section class="panel-left" id="panelLeft">
       <div class="panel-left-header">
         <div class="col-toggle"></div>
-        <div class="col-name">Nombre de tarea</div>
+        <div class="col-name">
+          <span>Nombre de tarea</span>
+          <button class="btn-col-shrink" id="btnNameShrink"
+                  aria-label="Reducir ancho de la columna de nombre"
+                  title="Reducir ancho de columna para ver más Gantt">
+            <span class="shrink-arrow">◀</span>
+          </button>
+        </div>
         <div class="col-dur">Duración</div>
         <div class="col-start">Comienzo</div>
         <div class="col-finish">Fin</div>

@@ -770,6 +770,18 @@ async function init() {
   if (btnLookAhead) {
     btnLookAhead.addEventListener('click', toggleLookAhead);
   }
+  const btnHeaderCollapse = $('btnHeaderCollapse');
+  if (btnHeaderCollapse) {
+    btnHeaderCollapse.addEventListener('click', () => {
+      document.body.classList.toggle('header-compact');
+    });
+  }
+  const btnNameShrink = $('btnNameShrink');
+  if (btnNameShrink) {
+    btnNameShrink.addEventListener('click', () => {
+      document.body.classList.toggle('left-compact');
+    });
+  }
   setupToggleHandler();
   setupScrollSync();
   setupHoverSync();

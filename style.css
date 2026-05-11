@@ -731,3 +731,99 @@ body.details-mode .btn-mobile-toggle .toggle-arrow {
   .logo { height: 56px; }
   .header-controls .meta-item { display: none; } /* última actualización oculta */
 }
+
+/* ============================================================
+   Botón ◀/▶ para angostar la columna "Nombre de tarea" en móvil.
+   Permite que se vean 2+ semanas en el Gantt en pantalla portrait.
+   ============================================================ */
+.btn-col-shrink {
+  display: none;
+  width: 22px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 9px;
+  padding: 0;
+  flex-shrink: 0;
+}
+.btn-col-shrink:hover { color: var(--text-primary); background: var(--bg-tertiary); }
+.btn-col-shrink .shrink-arrow {
+  display: inline-block;
+  transition: transform 200ms;
+  line-height: 1;
+}
+body.left-compact .btn-col-shrink .shrink-arrow {
+  transform: rotate(180deg);
+}
+
+@media (max-width: 900px) {
+  body:not(.details-mode) .btn-col-shrink { display: inline-flex; }
+  body.left-compact:not(.details-mode) { --left-w: 130px; }
+}
+
+/* ============================================================
+   Botón ▲/▼ para contraer el encabezado completo en móvil.
+   Útil sobre todo en landscape, donde el header ocupa demasiado.
+   ============================================================ */
+.btn-header-collapse {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 24px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 10px;
+  padding: 0;
+  margin-left: 6px;
+}
+.btn-header-collapse:hover { color: var(--text-primary); background: var(--bg-tertiary); }
+.btn-header-collapse .collapse-arrow {
+  display: inline-block;
+  transition: transform 200ms;
+  line-height: 1;
+}
+body.header-compact .btn-header-collapse .collapse-arrow {
+  transform: rotate(180deg);
+}
+
+@media (max-width: 900px) {
+  .btn-header-collapse { display: inline-flex; }
+}
+
+/* ---- Modo header-compact: solo botones esenciales visibles ---- */
+@media (max-width: 900px) {
+  body.header-compact { --header-h: 48px; }
+
+  body.header-compact .app-header {
+    padding: 6px 12px;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  body.header-compact .header-left { display: none; }
+  body.header-compact .header-right {
+    flex: 0 0 auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+  body.header-compact .header-meta { display: none; }
+  body.header-compact .header-controls {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  body.header-compact .header-controls .meta-item,
+  body.header-compact .header-controls .meta-sep {
+    display: none;
+  }
+}
