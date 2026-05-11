@@ -624,9 +624,10 @@ body.details-mode .btn-mobile-toggle .toggle-arrow {
   /* Mostrar el botón toggle */
   .btn-mobile-toggle { display: inline-flex; }
 
-  /* Header: ocultar botones globales en móvil para reducir ruido */
-  #btnExpandAll, #btnCollapseAll { display: none; }
+  /* En móvil ocultamos separadores "|" y "Última actualización" (de
+     la fila de controles) para dejar espacio al grid 2x2 de botones. */
   .meta-sep { display: none; }
+  .header-controls .meta-item { display: none; }
 
   /* Ocultar el bloque de título "PROGRAMA DE OBRA / nombre del
      proyecto" — en móvil el logo es suficiente para identificar
@@ -654,14 +655,45 @@ body.details-mode .btn-mobile-toggle .toggle-arrow {
     align-items: stretch;
     gap: 6px;
   }
-  .header-meta,
-  .header-controls {
+  .header-meta {
     flex-wrap: wrap;
     justify-content: flex-end;
     row-gap: 4px;
     column-gap: 14px;
     font-size: 11px;
     line-height: 1.3;
+  }
+
+  /* Header-controls en móvil: grid 2x2 con pares semánticos.
+       Fila 1: Look Ahead  |  Detalles      (vistas/filtros)
+       Fila 2: Resumen     |  Desglosar     (jerarquía)
+       Fila 3:                        ▲    (toggle del header) */
+  .header-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 8px;
+    font-size: 11px;
+    line-height: 1.3;
+  }
+  .header-controls > .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  #btnLookAhead      { order: 1; }
+  #btnDetailsToggle  { order: 2; }
+  #btnCollapseAll    { order: 3; } /* Resumen — debajo de Look Ahead */
+  #btnExpandAll      { order: 4; } /* Desglosar — debajo de Detalles */
+  #btnHeaderCollapse {
+    order: 5;
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+
+  /* Cuando el header está contraído, ocultar Resumen y Desglosar
+     (igual que la metadata) y dejar solo Look Ahead + Detalles. */
+  body.header-compact #btnExpandAll,
+  body.header-compact #btnCollapseAll {
+    display: none;
   }
 
   /* La fecha de corte (más importante) recibe peso visual extra. */
@@ -819,8 +851,16 @@ body.header-compact .btn-header-collapse .collapse-arrow {
   }
   body.header-compact .header-meta { display: none; }
   body.header-compact .header-controls {
+    display: flex;
     flex-wrap: nowrap;
     gap: 8px;
+  }
+  body.header-compact .header-controls > .btn {
+    width: auto;
+  }
+  body.header-compact #btnHeaderCollapse {
+    grid-column: auto;
+    justify-self: auto;
   }
   body.header-compact .header-controls .meta-item,
   body.header-compact .header-controls .meta-sep {

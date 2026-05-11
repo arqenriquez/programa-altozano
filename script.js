@@ -631,9 +631,18 @@ function expandAll() {
   renderLeftPanel();
   applyHiddenToDom();
 }
+// "Resumen" — vista mínima: nivel 1 expandido, nivel 2+ colapsado.
+// El usuario ve la raíz del proyecto + los lotes/partidas principales,
+// sin las sub-actividades internas.
 function collapseAll() {
   state.tasksFlat.forEach((t) => {
-    if (t.isSummary && t.children.length) {
+    if (!t.isSummary || !t.children.length) return;
+    if (t.outlineLevel === 1) {
+      // Nivel 1 (raíz/proyecto) queda expandido para mostrar sus hijos.
+      t.isCollapsed = false;
+      state.collapsed.delete(t.uid);
+    } else {
+      // Nivel 2+ se colapsa.
       t.isCollapsed = true;
       state.collapsed.add(t.uid);
     }
