@@ -694,9 +694,12 @@ async function init() {
   setupStatusDateHandler();
   setupDropzone();
 
-  // Intentar cargar el XML por fetch
+  // Intentar cargar el XML por fetch.
+  // `cache: 'no-cache'` fuerza validación con el servidor en cada carga,
+  // así el viewer siempre lee la versión más reciente de programa.xml
+  // después de un push semanal a GitHub.
   try {
-    const resp = await fetch(XML_PATH);
+    const resp = await fetch(`${XML_PATH}?t=${Date.now()}`, { cache: 'no-cache' });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const text = await resp.text();
     loadFromText(text);

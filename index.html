@@ -3,6 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Cache-busting automático:
+       - Meta tags piden al browser no cachear el HTML (algunos
+         lo respetan, otros no — GitHub Pages además sirve HTML
+         con max-age:600 así que el HTML se refresca cada ~10min).
+       - style.css y script.js se inyectan más abajo con un
+         querystring ?v=Date.now() para forzar versión fresca
+         en cada carga, sin intervención manual. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
   <title>Programa de Obra — Metta Arquitectura</title>
 
   <!-- Tipografías -->
@@ -10,7 +22,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css" />
+  <!-- CSS local con cache-busting automático -->
+  <script>
+    document.write('<link rel="stylesheet" href="style.css?v=' + Date.now() + '">');
+  </script>
 </head>
 <body>
 
@@ -124,6 +139,9 @@
     <p>El archivo XML está vacío o no contiene tareas válidas.</p>
   </div>
 
-  <script src="script.js"></script>
+  <!-- JS local con cache-busting automático -->
+  <script>
+    document.write('<script src="script.js?v=' + Date.now() + '"><\/script>');
+  </script>
 </body>
 </html>
