@@ -174,6 +174,22 @@ input[type="date"]:focus {
 }
 .btn-primary:hover { background: #2a4a7f; }
 
+/* Botón Look Ahead — siempre visible. Cambia a navy cuando se activa. */
+.btn-lookahead {
+  font-weight: 500;
+}
+.btn-lookahead.active {
+  background: var(--bar-summary);
+  color: var(--text-on-dark);
+  border-color: var(--bar-summary);
+  font-weight: 600;
+}
+.btn-lookahead.active::before {
+  content: '● ';
+  font-size: 9px;
+  vertical-align: middle;
+}
+
 /* ============================================================
    DROPZONE / ERROR / EMPTY
    ============================================================ */

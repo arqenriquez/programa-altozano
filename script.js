@@ -33,7 +33,15 @@ const state = {
   tasksFlat: [],      // lista plana en orden del XML
   tasksTree: [],      // raíces del árbol
   scale: null,        // resultado de computeScale()
-  collapsed: new Set()// set de UIDs colapsadas
+  collapsed: new Set(),// set de UIDs colapsadas
+  // ---- Look Ahead (Lean Construction) ----
+  // Cuando está activo, sólo se muestran las tareas cuya FECHA DE
+  // INICIO cae dentro de la ventana de 5 semanas a partir del lunes
+  // de la fecha de corte (semanas S01..S05 relativas), junto con
+  // sus tareas padre/agrupador para conservar la jerarquía.
+  lookAheadActive: false,
+  lookAheadWindow: null,
+  lookAheadWeeks: 5
 };
 
 // DOM refs (se setean en init)
@@ -505,9 +513,30 @@ function toggleCollapse(uid) {
 }
 
 /**
- * Recalcula isHidden de cada tarea según el estado de sus ancestros.
+ * Recalcula isHidden de cada tarea según el modo de visualización.
+ *  - Look Ahead activo: visible solo si solapa la ventana de N semanas
+ *    o si es ancestro de alguna tarea visible.
+ *  - Modo normal: visible salvo que algún ancestro esté colapsado.
  */
 function recomputeHiddenFlags() {
+  if (state.lookAheadActive && state.lookAheadWindow) {
+    const { start: ws, end: we } = state.lookAheadWindow;
+    const visible = new Set();
+    state.tasksFlat.forEach((t) => {
+      if (!t.start) return;
+      // Criterio: la FECHA DE INICIO cae dentro de la ventana
+      // [ws, we). Las Summary se incluyen indirectamente como
+      // ancestros, aunque su start sea anterior.
+      if (t.start >= ws && t.start < we) {
+        // Marcar la tarea y todos sus ancestros como visibles.
+        let cur = t;
+        while (cur) { visible.add(cur.uid); cur = cur.parent; }
+      }
+    });
+    state.tasksFlat.forEach((t) => { t.isHidden = !visible.has(t.uid); });
+    return;
+  }
+
   state.tasksFlat.forEach((t) => {
     let p = t.parent;
     let hidden = false;
@@ -517,6 +546,45 @@ function recomputeHiddenFlags() {
     }
     t.isHidden = hidden;
   });
+}
+
+/**
+ * Calcula la ventana del Look Ahead a partir de una fecha de referencia.
+ * La ventana arranca el LUNES de la semana de la fecha y dura N semanas.
+ */
+function computeLookAheadWindow(fromDate, weeks) {
+  const monday = new Date(fromDate);
+  const dow = monday.getDay();
+  const offsetToMonday = (dow === 0 ? -6 : 1 - dow);
+  monday.setDate(monday.getDate() + offsetToMonday);
+  monday.setHours(0, 0, 0, 0);
+  const end = new Date(monday);
+  end.setDate(end.getDate() + weeks * 7);
+  return { start: monday, end };
+}
+
+/**
+ * Activa / desactiva el filtro Look Ahead.
+ */
+function toggleLookAhead() {
+  state.lookAheadActive = !state.lookAheadActive;
+  state.lookAheadWindow = state.lookAheadActive
+    ? computeLookAheadWindow(state.project.statusDate, state.lookAheadWeeks)
+    : null;
+
+  const btn = $('btnLookAhead');
+  if (btn) btn.classList.toggle('active', state.lookAheadActive);
+
+  recomputeHiddenFlags();
+  applyHiddenToDom();
+
+  // Al activar, desplazar el Gantt al inicio de la ventana para que
+  // el usuario vea de inmediato el rango filtrado.
+  if (state.lookAheadActive && state.scale && dom.panelRight) {
+    const offsetDays = (state.lookAheadWindow.start - state.scale.origin) / MS_PER_DAY;
+    const targetPx = Math.max(0, offsetDays * state.scale.pxPerDay - 20);
+    dom.panelRight.scrollLeft = targetPx;
+  }
 }
 
 /**
@@ -645,6 +713,16 @@ function setupStatusDateHandler() {
     const d = dom.statusDateInput.valueAsDate;
     if (!d) return;
     state.project.statusDate = d;
+
+    // Si el Look Ahead está activo, deslizar la ventana al nuevo lunes.
+    if (state.lookAheadActive) {
+      state.lookAheadWindow = computeLookAheadWindow(
+        state.project.statusDate, state.lookAheadWeeks
+      );
+      recomputeHiddenFlags();
+      applyHiddenToDom();
+    }
+
     // Re-render solo del gantt (más barato que renderApp).
     renderGantt();
     renderStatusLine();
@@ -687,6 +765,10 @@ async function init() {
     btnDetailsToggle.addEventListener('click', () => {
       document.body.classList.toggle('details-mode');
     });
+  }
+  const btnLookAhead = $('btnLookAhead');
+  if (btnLookAhead) {
+    btnLookAhead.addEventListener('click', toggleLookAhead);
   }
   setupToggleHandler();
   setupScrollSync();
